@@ -10,6 +10,7 @@
 #import "MessageTableViewCell.h"
 #import "SPHTextBubbleCell.h"
 #import "Constantvalues.h"
+#import "GZLog.h"
 
 #import <LoremIpsum/LoremIpsum.h>
 
@@ -449,6 +450,7 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
     NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:14.0f],
                                  NSParagraphStyleAttributeName: paragraphStyle};
     
+    GZLogCGRect(self.tableView.frame);
     NSString* bubbletype = @"LEFT";
     if ([bubbletype isEqualToString:@"LEFT"])
     {

@@ -104,6 +104,7 @@
 		8C2F52AC1A67A9A800857DBC /* Constantvalues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constantvalues.h; sourceTree = "<group>"; };
 		8C2F52AD1A67B5AB00857DBC /* talk_bubble_right.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = talk_bubble_right.png; sourceTree = "<group>"; };
 		8C2F52AE1A67B5AB00857DBC /* talk_bubble_left.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = talk_bubble_left.png; sourceTree = "<group>"; };
+		8C2F52B61A67F24400857DBC /* GZLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GZLog.h; sourceTree = "<group>"; };
 		C905E5DB18A83F74BD092CDD /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		DDFA9095EABC480682E6396C /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -327,6 +328,7 @@
 		8C2F52A81A67A98B00857DBC /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				8C2F52B61A67F24400857DBC /* GZLog.h */,
 				8C2F52AC1A67A9A800857DBC /* Constantvalues.h */,
 				8C2F52A91A67A98B00857DBC /* UIImage+Utils.h */,
 				8C2F52AA1A67A98B00857DBC /* UIImage+Utils.m */,

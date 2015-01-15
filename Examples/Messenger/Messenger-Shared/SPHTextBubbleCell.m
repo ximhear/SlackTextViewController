@@ -9,6 +9,7 @@
 #import "SPHTextBubbleCell.h"
 #import "UIImage+Utils.h"
 #import "Constantvalues.h"
+#import "GZLog.h"
 
 @interface SPHTextBubbleCell ()
 
@@ -163,6 +164,8 @@
         _topDateLabel.frame = CGRectZero;
         y = 0;
     }
+    
+    GZLogCGRect(self.frame);
     
     self.bubbletype = @"LEFT";
     if ([self.bubbletype isEqualToString:@"LEFT"])
