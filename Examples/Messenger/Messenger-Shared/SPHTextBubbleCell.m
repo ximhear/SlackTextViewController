@@ -140,8 +140,8 @@
         self.AvatarImageView.frame=CGRectMake(5,10+TOP_MARGIN, 50, 50);
       
         
-        UIImage *coloredImage = [[UIImage imageNamed:@"messages_left_bubble.png"] maskWithColor:BLUE_TEXT_HIGHLIGHT_COLOR];
-        messageBackgroundView.image = [[UIImage imageWithCGImage:coloredImage.CGImage] stretchableImageWithLeftCapWidth:20 topCapHeight:16];
+//        UIImage *coloredImage = [[UIImage imageNamed:@"talk_bubble_left.png"] maskWithColor:BLUE_TEXT_HIGHLIGHT_COLOR];
+        messageBackgroundView.image = [[UIImage imageNamed:@"talk_bubble_left.png"] stretchableImageWithLeftCapWidth:20 topCapHeight:25];
         
     }else
     {
@@ -157,7 +157,7 @@
         self.textLabel.frame = textLabelFrame;
         
         messageBackgroundView.frame = CGRectMake(textLabelFrame.origin.x -8, textLabelFrame.origin.y - 2, labelSize.width + 16, labelSize.height + 18);
-         messageBackgroundView.image = [[UIImage imageNamed:@"messages_right_bubble.png"] stretchableImageWithLeftCapWidth:1 topCapHeight:16];
+         messageBackgroundView.image = [[UIImage imageNamed:@"talk_bubble_right.png"] stretchableImageWithLeftCapWidth:20 topCapHeight:25];
         
         self.AvatarImageView.frame=CGRectMake( self.frame.size.width-55,10+TOP_MARGIN, 50, 50);
         

@@ -45,6 +45,8 @@
 		8C2F52A61A67A94400857DBC /* person.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C2F52981A67A94400857DBC /* person.png */; };
 		8C2F52A71A67A94400857DBC /* scene.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C2F52991A67A94400857DBC /* scene.png */; };
 		8C2F52AB1A67A98B00857DBC /* UIImage+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2F52AA1A67A98B00857DBC /* UIImage+Utils.m */; };
+		8C2F52AF1A67B5AB00857DBC /* talk_bubble_right.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C2F52AD1A67B5AB00857DBC /* talk_bubble_right.png */; };
+		8C2F52B01A67B5AB00857DBC /* talk_bubble_left.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C2F52AE1A67B5AB00857DBC /* talk_bubble_left.png */; };
 		8C6D809F3C95C912F87F0D17 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DDFA9095EABC480682E6396C /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -100,6 +102,8 @@
 		8C2F52A91A67A98B00857DBC /* UIImage+Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Utils.h"; sourceTree = "<group>"; };
 		8C2F52AA1A67A98B00857DBC /* UIImage+Utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Utils.m"; sourceTree = "<group>"; };
 		8C2F52AC1A67A9A800857DBC /* Constantvalues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constantvalues.h; sourceTree = "<group>"; };
+		8C2F52AD1A67B5AB00857DBC /* talk_bubble_right.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = talk_bubble_right.png; sourceTree = "<group>"; };
+		8C2F52AE1A67B5AB00857DBC /* talk_bubble_left.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = talk_bubble_left.png; sourceTree = "<group>"; };
 		C905E5DB18A83F74BD092CDD /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		DDFA9095EABC480682E6396C /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -300,6 +304,8 @@
 		8C2F528B1A67A94400857DBC /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				8C2F52AD1A67B5AB00857DBC /* talk_bubble_right.png */,
+				8C2F52AE1A67B5AB00857DBC /* talk_bubble_left.png */,
 				8C2F528C1A67A94400857DBC /* ChatBack.png */,
 				8C2F528D1A67A94400857DBC /* ChatBack@2X.png */,
 				8C2F528E1A67A94400857DBC /* HeaderBar.png */,
@@ -438,6 +444,7 @@
 				8C2F529A1A67A94400857DBC /* ChatBack.png in Resources */,
 				4F86BF9319F01234007A3D4A /* Images.xcassets in Resources */,
 				8C2F52A31A67A94400857DBC /* messages_right_bubble@2x.png in Resources */,
+				8C2F52B01A67B5AB00857DBC /* talk_bubble_left.png in Resources */,
 				8C2F529D1A67A94400857DBC /* HeaderBar@2x.png in Resources */,
 				8C2F52A61A67A94400857DBC /* person.png in Resources */,
 				8C2F52A71A67A94400857DBC /* scene.png in Resources */,
@@ -445,6 +452,7 @@
 				8C2F52A41A67A94400857DBC /* messages_toolbar_background.png in Resources */,
 				8C2F529C1A67A94400857DBC /* HeaderBar.png in Resources */,
 				8C2F529E1A67A94400857DBC /* ProfilePic.png in Resources */,
+				8C2F52AF1A67B5AB00857DBC /* talk_bubble_right.png in Resources */,
 				8C2F52A21A67A94400857DBC /* messages_right_bubble.png in Resources */,
 				8C2F52A51A67A94400857DBC /* messages_toolbar_background@2x.png in Resources */,
 				8C2F529B1A67A94400857DBC /* ChatBack@2X.png in Resources */,
