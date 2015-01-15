@@ -8,6 +8,8 @@
 
 #import "MessageViewController.h"
 #import "MessageTableViewCell.h"
+#import "SPHTextBubbleCell.h"
+#import "Constantvalues.h"
 
 #import <LoremIpsum/LoremIpsum.h>
 
@@ -71,6 +73,7 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
     
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.tableView registerClass:[MessageTableViewCell class] forCellReuseIdentifier:MessengerCellIdentifier];
+    [self.tableView registerClass:[SPHTextBubbleCell class] forCellReuseIdentifier:@"SPHTextBubbleCell"];
 
     self.textView.placeholder = NSLocalizedString(@"Message", nil);
     self.textView.placeholderColor = [UIColor lightGrayColor];
@@ -86,7 +89,7 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
     [self.textInputbar.editortLeftButton setTintColor:[UIColor colorWithRed:0.0/255.0 green:122.0/255.0 blue:255.0/255.0 alpha:1.0]];
     [self.textInputbar.editortRightButton setTintColor:[UIColor colorWithRed:0.0/255.0 green:122.0/255.0 blue:255.0/255.0 alpha:1.0]];
     
-    self.textInputbar.autoHideRightButton = YES;
+    self.textInputbar.autoHideRightButton = NO;
     self.textInputbar.maxCharCount = 140;
     self.textInputbar.counterStyle = SLKCounterStyleSplit;
     
@@ -360,35 +363,41 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
     }
 }
 
-- (MessageTableViewCell *)messageCellForRowAtIndexPath:(NSIndexPath *)indexPath
+- (SPHTextBubbleCell *)messageCellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    MessageTableViewCell *cell = (MessageTableViewCell *)[self.tableView dequeueReusableCellWithIdentifier:MessengerCellIdentifier];
+    SPHTextBubbleCell *cell = (SPHTextBubbleCell *)[self.tableView dequeueReusableCellWithIdentifier:@"SPHTextBubbleCell"];
     
-    if (!cell.textLabel.text) {
-        UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(editCellMessage:)];
-        [cell addGestureRecognizer:longPress];
-    }
+//    if (!cell.textLabel.text) {
+//        UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(editCellMessage:)];
+//        [cell addGestureRecognizer:longPress];
+//    }
     
     NSString *message = self.messages[indexPath.row];
+    cell.bubbletype=@"LEFT";//:@"RIGHT";
     cell.textLabel.text = message;
-    cell.indexPath = indexPath;
-    cell.usedForMessage = YES;
+    cell.textLabel.tag=indexPath.row;
+    cell.timestampLabel.text = @"02:20 AM";
+//    cell.CustomDelegate=self;
+    cell.AvatarImageView.image=[UIImage imageNamed:@"ProfilePic"];
     
-    if (cell.needsPlaceholder)
-    {
-        CGFloat scale = [UIScreen mainScreen].scale;
-        
-        if ([[UIScreen mainScreen] respondsToSelector:@selector(nativeScale)]) {
-            scale = [UIScreen mainScreen].nativeScale;
-        }
-        
-        CGSize imgSize = CGSizeMake(kAvatarSize*scale, kAvatarSize*scale);
-        
-        [LoremIpsum asyncPlaceholderImageWithSize:imgSize
-                                       completion:^(UIImage *image) {
-                                           [cell setPlaceholder:image scale:scale];
-                                       }];
-    }
+//    cell.indexPath = indexPath;
+//    cell.usedForMessage = YES;
+    
+//    if (cell.needsPlaceholder)
+//    {
+//        CGFloat scale = [UIScreen mainScreen].scale;
+//        
+//        if ([[UIScreen mainScreen] respondsToSelector:@selector(nativeScale)]) {
+//            scale = [UIScreen mainScreen].nativeScale;
+//        }
+//        
+//        CGSize imgSize = CGSizeMake(kAvatarSize*scale, kAvatarSize*scale);
+//        
+//        [LoremIpsum asyncPlaceholderImageWithSize:imgSize
+//                                       completion:^(UIImage *image) {
+//                                           [cell setPlaceholder:image scale:scale];
+//                                       }];
+//    }
     
     // Cells must inherit the table view's transform
     // This is very important, since the main table view may be inverted
@@ -422,35 +431,48 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if ([tableView isEqual:self.tableView]) {
-        NSString *message = self.messages[indexPath.row];
-        
-        NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
-        paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
-        paragraphStyle.alignment = NSTextAlignmentLeft;
-        
-        NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:16.0],
-                                     NSParagraphStyleAttributeName: paragraphStyle};
-        
-        CGFloat width = CGRectGetWidth(tableView.frame)-(kAvatarSize*2.0+10);
-        
-        CGRect bounds = [message boundingRectWithSize:CGSizeMake(width, 0.0) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
-        
-        if (message.length == 0) {
-            return 0.0;
-        }
-        
-        CGFloat height = roundf(CGRectGetHeight(bounds)+kAvatarSize);
-        
-        if (height < kMinimumHeight) {
-            height = kMinimumHeight;
-        }
-        
-        return height;
-    }
-    else {
-        return kMinimumHeight;
-    }
+    NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
+    paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
+    paragraphStyle.alignment = NSTextAlignmentLeft;
+    
+    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:14.0f],
+                                 NSParagraphStyleAttributeName: paragraphStyle};
+    
+    CGSize labelSize =[self.messages[indexPath.row] boundingRectWithSize:CGSizeMake(226.0f, MAXFLOAT)
+                                                           options:NSStringDrawingUsesLineFragmentOrigin
+                                                        attributes:attributes
+                                                           context:nil].size;
+    return labelSize.height + 30 + TOP_MARGIN < 80 ? 80 : labelSize.height + 30 + TOP_MARGIN;
+    
+//    if ([tableView isEqual:self.tableView]) {
+//        NSString *message = self.messages[indexPath.row];
+//        
+//        NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
+//        paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
+//        paragraphStyle.alignment = NSTextAlignmentLeft;
+//        
+//        NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:16.0],
+//                                     NSParagraphStyleAttributeName: paragraphStyle};
+//        
+//        CGFloat width = CGRectGetWidth(tableView.frame)-(kAvatarSize*2.0+10);
+//        
+//        CGRect bounds = [message boundingRectWithSize:CGSizeMake(width, 0.0) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
+//        
+//        if (message.length == 0) {
+//            return 0.0;
+//        }
+//        
+//        CGFloat height = roundf(CGRectGetHeight(bounds)+kAvatarSize);
+//        
+//        if (height < kMinimumHeight) {
+//            height = kMinimumHeight;
+//        }
+//        
+//        return height;
+//    }
+//    else {
+//        return kMinimumHeight;
+//    }
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section

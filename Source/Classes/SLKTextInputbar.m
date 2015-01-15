@@ -113,7 +113,7 @@
         
         _textView.typingSuggestionEnabled = YES;
         _textView.autocapitalizationType = UITextAutocapitalizationTypeSentences;
-        _textView.keyboardType = UIKeyboardTypeTwitter;
+        _textView.keyboardType = UIKeyboardTypeDefault;
         _textView.returnKeyType = UIReturnKeyDefault;
         _textView.enablesReturnKeyAutomatically = YES;
         _textView.scrollIndicatorInsets = UIEdgeInsetsMake(0, -1, 0, 1);
