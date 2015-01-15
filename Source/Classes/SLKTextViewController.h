@@ -45,14 +45,20 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface SLKTextViewController : UIViewController 
 /** The main table view managed by the controller object. Created by default initializing with -init or initWithNibName:bundle: */
 @property (nonatomic, readonly) UITableView *tableView;
 
-/** The main collection view managed by the controller object. Not nil if the controller is initialised with -initWithCollectionViewLayout: */
-@property (nonatomic, readonly) UICollectionView *collectionView;
+///** The main collection view managed by the controller object. Not nil if the controller is initialised with -initWithCollectionViewLayout: */
+//@property (nonatomic, readonly) UICollectionView *collectionView;
 
 /** The bottom toolbar containing a text view and buttons. */
 @property (nonatomic, readonly) SLKTextInputbar *textInputbar;
 
-/** The typing indicator used to display user names horizontally. */
-@property (nonatomic, readonly) SLKTypingIndicatorView *typingIndicatorView;
+///** The typing indicator used to display user names horizontally. */
+//@property (nonatomic, readonly) SLKTypingIndicatorView *typingIndicatorView;
+
+/** 상단 내비게이션용 View */
+@property(nonatomic, strong) UIView* navigationView;
+
+/** 내비게이션용 View 아래의 초대 목록을 표시하는 View */
+@property(nonatomic, strong) UIView* invitationView;
 
 /** The single tap gesture used to dismiss the keyboard */
 @property (nonatomic, readonly) UIGestureRecognizer *singleTapGesture;
@@ -118,7 +124,7 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface SLKTextViewController : UIViewController 
  @param layout The layout object to associate with the collection view. The layout controls how the collection view presents its cells and supplementary views.
  @return An initialized SLKTextViewController object or nil if the object could not be created.
  */
-- (instancetype)initWithCollectionViewLayout:(UICollectionViewLayout *)layout;
+//- (instancetype)initWithCollectionViewLayout:(UICollectionViewLayout *)layout;
 
 /**
  Returns the tableView style to be configured when using Interface Builder. Default is UITableViewStylePlain.
@@ -297,7 +303,7 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface SLKTextViewController : UIViewController 
 ///------------------------------------------------
 
 /** The table view used to display autocompletion results. */
-@property (nonatomic, readonly) UITableView *autoCompletionView;
+//@property (nonatomic, readonly) UITableView *autoCompletionView;
 
 /** The recently found prefix symbol used as prefix for autocompletion mode. */
 @property (nonatomic, readonly) NSString *foundPrefix;

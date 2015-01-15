@@ -17,6 +17,7 @@
 #import "SLKTextViewController.h"
 #import "SLKInputAccessoryView.h"
 #import "SLKUIConstants.h"
+#import "GZLog.h"
 
 NSString * const SLKKeyboardWillShowNotification =  @"SLKKeyboardWillShowNotification";
 NSString * const SLKKeyboardDidShowNotification =   @"SLKKeyboardDidShowNotification";
@@ -35,8 +36,8 @@ NSString * const SLKKeyboardDidHideNotification =   @"SLKKeyboardDidHideNotifica
 // Auto-Layout height constraints used for updating their constants
 @property (nonatomic, strong) NSLayoutConstraint *scrollViewHC;
 @property (nonatomic, strong) NSLayoutConstraint *textInputbarHC;
-@property (nonatomic, strong) NSLayoutConstraint *typingIndicatorViewHC;
-@property (nonatomic, strong) NSLayoutConstraint *autoCompletionViewHC;
+@property (nonatomic, strong) NSLayoutConstraint *navigationViewHC;
+@property (nonatomic, strong) NSLayoutConstraint *invitationViewHC;
 @property (nonatomic, strong) NSLayoutConstraint *keyboardHC;
 
 // The pan gesture used for bringing the keyboard from the bottom
@@ -67,11 +68,11 @@ NSString * const SLKKeyboardDidHideNotification =   @"SLKKeyboardDidHideNotifica
 
 @implementation SLKTextViewController
 @synthesize tableView = _tableView;
-@synthesize collectionView = _collectionView;
-@synthesize typingIndicatorView = _typingIndicatorView;
+//@synthesize collectionView = _collectionView;
+//@synthesize typingIndicatorView = _typingIndicatorView;
 @synthesize textInputbar = _textInputbar;
-@synthesize autoCompletionView = _autoCompletionView;
-@synthesize autoCompleting = _autoCompleting;
+//@synthesize autoCompletionView = _autoCompletionView;
+//@synthesize autoCompleting = _autoCompleting;
 @synthesize scrollViewProxy = _scrollViewProxy;
 @synthesize presentedInPopover = _presentedInPopover;
 
@@ -94,22 +95,26 @@ NSString * const SLKKeyboardDidHideNotification =   @"SLKKeyboardDidHideNotifica
     if (self = [super initWithNibName:nil bundle:nil])
     {
         self.scrollViewProxy = [self tableViewWithStyle:style];
+        _navigationView = [[UIView alloc] initWithFrame:CGRectZero];
+        _invitationView = [[UIView alloc] initWithFrame:CGRectZero];
+        _navigationView.translatesAutoresizingMaskIntoConstraints = NO;
+        _invitationView.translatesAutoresizingMaskIntoConstraints = NO;
         [self commonInit];
     }
     return self;
 }
 
-- (instancetype)initWithCollectionViewLayout:(UICollectionViewLayout *)layout
-{
-    NSAssert([self class] != [SLKTextViewController class], @"Oops! You must subclass SLKTextViewController.");
-    
-    if (self = [super initWithNibName:nil bundle:nil])
-    {
-        self.scrollViewProxy = [self collectionViewWithLayout:layout];
-        [self commonInit];
-    }
-    return self;
-}
+//- (instancetype)initWithCollectionViewLayout:(UICollectionViewLayout *)layout
+//{
+//    NSAssert([self class] != [SLKTextViewController class], @"Oops! You must subclass SLKTextViewController.");
+//    
+//    if (self = [super initWithNibName:nil bundle:nil])
+//    {
+//        self.scrollViewProxy = [self collectionViewWithLayout:layout];
+//        [self commonInit];
+//    }
+//    return self;
+//}
 
 - (instancetype)initWithCoder:(NSCoder *)decoder
 {
@@ -118,14 +123,11 @@ NSString * const SLKKeyboardDidHideNotification =   @"SLKKeyboardDidHideNotifica
     if (self = [super initWithCoder:decoder])
     {
         UITableViewStyle tableViewStyle = [[self class] tableViewStyleForCoder:decoder];
-        UICollectionViewLayout *collectionViewLayout = [[self class] collectionViewLayoutForCoder:decoder];
-        
-        if ([collectionViewLayout isKindOfClass:[UICollectionViewLayout class]]) {
-            self.scrollViewProxy = [self collectionViewWithLayout:collectionViewLayout];
-        }
-        else {
-            self.scrollViewProxy = [self tableViewWithStyle:tableViewStyle];
-        }
+        self.scrollViewProxy = [self tableViewWithStyle:tableViewStyle];
+        _navigationView = [[UIView alloc] initWithFrame:CGRectZero];
+        _invitationView = [[UIView alloc] initWithFrame:CGRectZero];
+        _navigationView.translatesAutoresizingMaskIntoConstraints = NO;
+        _invitationView.translatesAutoresizingMaskIntoConstraints = NO;
         
         [self commonInit];
     }
@@ -152,9 +154,9 @@ NSString * const SLKKeyboardDidHideNotification =   @"SLKKeyboardDidHideNotifica
 {
     [super loadView];
         
+    [self.view addSubview:self.navigationView];
+    [self.view addSubview:self.invitationView];
     [self.view addSubview:self.scrollViewProxy];
-    [self.view addSubview:self.autoCompletionView];
-    [self.view addSubview:self.typingIndicatorView];
     [self.view addSubview:self.textInputbar];
     
     [self setupViewConstraints];
@@ -244,33 +246,33 @@ NSString * const SLKKeyboardDidHideNotification =   @"SLKKeyboardDidHideNotifica
     return _tableView;
 }
 
-- (UICollectionView *)collectionViewWithLayout:(UICollectionViewLayout *)layout
-{
-    if (!_collectionView)
-    {
-        _collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:layout];
-        _collectionView.translatesAutoresizingMaskIntoConstraints = NO;
-        _collectionView.backgroundColor = [UIColor whiteColor];
-        _collectionView.scrollsToTop = YES;
-        _collectionView.dataSource = self;
-        _collectionView.delegate = self;
-    }
-    return _collectionView;
-}
-
-- (UITableView *)autoCompletionView
-{
-    if (!_autoCompletionView)
-    {
-        _autoCompletionView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
-        _autoCompletionView.translatesAutoresizingMaskIntoConstraints = NO;
-        _autoCompletionView.backgroundColor = [UIColor colorWithWhite:0.97 alpha:1.0];
-        _autoCompletionView.scrollsToTop = NO;
-        _autoCompletionView.dataSource = self;
-        _autoCompletionView.delegate = self;
-    }
-    return _autoCompletionView;
-}
+//- (UICollectionView *)collectionViewWithLayout:(UICollectionViewLayout *)layout
+//{
+//    if (!_collectionView)
+//    {
+//        _collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:layout];
+//        _collectionView.translatesAutoresizingMaskIntoConstraints = NO;
+//        _collectionView.backgroundColor = [UIColor whiteColor];
+//        _collectionView.scrollsToTop = YES;
+//        _collectionView.dataSource = self;
+//        _collectionView.delegate = self;
+//    }
+//    return _collectionView;
+//}
+//
+//- (UITableView *)autoCompletionView
+//{
+//    if (!_autoCompletionView)
+//    {
+//        _autoCompletionView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+//        _autoCompletionView.translatesAutoresizingMaskIntoConstraints = NO;
+//        _autoCompletionView.backgroundColor = [UIColor colorWithWhite:0.97 alpha:1.0];
+//        _autoCompletionView.scrollsToTop = NO;
+//        _autoCompletionView.dataSource = self;
+//        _autoCompletionView.delegate = self;
+//    }
+//    return _autoCompletionView;
+//}
 
 - (SLKTextInputbar *)textInputbar
 {
@@ -294,16 +296,16 @@ NSString * const SLKKeyboardDidHideNotification =   @"SLKKeyboardDidHideNotifica
     return _textInputbar;
 }
 
-- (SLKTypingIndicatorView *)typingIndicatorView
-{
-    if (!_typingIndicatorView)
-    {
-        _typingIndicatorView = [SLKTypingIndicatorView new];
-        _typingIndicatorView.translatesAutoresizingMaskIntoConstraints = NO;
-        _typingIndicatorView.canResignByTouch = NO;
-    }
-    return _typingIndicatorView;
-}
+//- (SLKTypingIndicatorView *)typingIndicatorView
+//{
+//    if (!_typingIndicatorView)
+//    {
+//        _typingIndicatorView = [SLKTypingIndicatorView new];
+//        _typingIndicatorView.translatesAutoresizingMaskIntoConstraints = NO;
+//        _typingIndicatorView.canResignByTouch = NO;
+//    }
+//    return _typingIndicatorView;
+//}
 
 - (BOOL)isEditing
 {
@@ -463,10 +465,10 @@ NSString * const SLKKeyboardDidHideNotification =   @"SLKKeyboardDidHideNotifica
 {
     CGFloat height = self.view.bounds.size.height;
     
+    height -= self.navigationViewHC.constant;
+    height -= self.invitationViewHC.constant;
     height -= self.keyboardHC.constant;
     height -= self.textInputbarHC.constant;
-    height -= self.autoCompletionViewHC.constant;
-    height -= self.typingIndicatorViewHC.constant;
     
     if (height < 0) return 0;
     else return roundf(height);
@@ -1285,24 +1287,24 @@ NSString * const SLKKeyboardDidHideNotification =   @"SLKKeyboardDidHideNotifica
 
 - (void)willShowOrHideTypeIndicatorView:(NSNotification *)notification
 {
-    SLKTypingIndicatorView *indicatorView = (SLKTypingIndicatorView *)notification.object;
+//    SLKTypingIndicatorView *indicatorView = (SLKTypingIndicatorView *)notification.object;
     
     // Skips if it's not the expected typing indicator view.
-    if (![indicatorView isEqual:self.typingIndicatorView]) {
-        return;
-    }
+//    if (![indicatorView isEqual:self.typingIndicatorView]) {
+//        return;
+//    }
     
     // Skips if the typing indicator should not show. Ignores the checking if it's trying to hide.
-    if (![self canShowTypeIndicator] && !self.typingIndicatorView.isVisible) {
-        return;
-    }
+//    if (![self canShowTypeIndicator] && !self.typingIndicatorView.isVisible) {
+//        return;
+//    }
     
-    self.typingIndicatorViewHC.constant = indicatorView.isVisible ?  0.0 : indicatorView.height;
-    self.scrollViewHC.constant -= self.typingIndicatorViewHC.constant;
-    
-    [self.view slk_animateLayoutIfNeededWithBounce:self.bounces
-                                           options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionLayoutSubviews|UIViewAnimationOptionBeginFromCurrentState
-                                        animations:NULL];
+//    self.typingIndicatorViewHC.constant = indicatorView.isVisible ?  0.0 : indicatorView.height;
+//    self.scrollViewHC.constant -= self.typingIndicatorViewHC.constant;
+//    
+//    [self.view slk_animateLayoutIfNeededWithBounce:self.bounces
+//                                           options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionLayoutSubviews|UIViewAnimationOptionBeginFromCurrentState
+//                                        animations:NULL];
 }
 
 - (void)willTerminateApplication:(NSNotification *)notification
@@ -1409,13 +1411,13 @@ NSString * const SLKKeyboardDidHideNotification =   @"SLKKeyboardDidHideNotifica
 
 - (void)cancelAutoCompletion
 {
-    _foundPrefix = nil;
-    _foundWord = nil;
-    _foundPrefixRange = NSMakeRange(0,0);
-    
-    [self.autoCompletionView setContentOffset:CGPointZero];
-    
-    [self hideAutoCompletionViewIfNeeded];
+//    _foundPrefix = nil;
+//    _foundWord = nil;
+//    _foundPrefixRange = NSMakeRange(0,0);
+//    
+//    [self.autoCompletionView setContentOffset:CGPointZero];
+//    
+//    [self hideAutoCompletionViewIfNeeded];
 }
 
 - (void)acceptAutoCompletionWithString:(NSString *)string
@@ -1445,55 +1447,55 @@ NSString * const SLKKeyboardDidHideNotification =   @"SLKKeyboardDidHideNotifica
 
 - (void)showAutoCompletionView:(BOOL)show
 {
-    // Skips if rotating
-    if (self.isRotating) {
-        return;
-    }
-    
-    CGFloat viewHeight = show ? [self heightForAutoCompletionView] : 0.0;
-    
-    if (self.autoCompletionViewHC.constant == viewHeight) {
-        return;
-    }
-    
-    if (show) {
-        // Reload the tableview before showing it
-        [self.autoCompletionView reloadData];
-        [self.autoCompletionView setContentOffset:CGPointZero];
-    }
-    
-    // If the autocompletion view height is bigger than the maximum height allows, it is reduce to that size. Default 140 pts.
-    if (viewHeight > [self maximumHeightForAutoCompletionView]) {
-        viewHeight = [self maximumHeightForAutoCompletionView];
-    }
-    
-    CGFloat tableHeight = self.scrollViewHC.constant + self.autoCompletionViewHC.constant;
-    
-    // Only when the view extends its layout beyond it top edge
-    if ((self.edgesForExtendedLayout & UIRectEdgeTop) > 0) {
-        
-        // On iOS7, the status bar isn't automatically hidden on landscape orientation
-        if (SLK_IS_IPHONE && SLK_IS_LANDSCAPE && !SLK_IS_IOS8_AND_HIGHER) {
-            tableHeight -= CGRectGetHeight([UIApplication sharedApplication].statusBarFrame);
-        }
-        
-        tableHeight -= CGRectGetHeight(self.navigationController.navigationBar.frame);
-    }
-    
-    // On iPhone, the autocompletion view can't extend beyond the table view height
-    if (SLK_IS_IPHONE && viewHeight > tableHeight) {
-        viewHeight = tableHeight;
-    }
-    
-    self.autoCompletionViewHC.constant = viewHeight;
-    self.autoCompleting = show;
-    
-    // Toggles auto-correction if requiered
-    [self enableTypingSuggestionIfNeeded];
-    
-	[self.view slk_animateLayoutIfNeededWithBounce:self.bounces
-										   options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionLayoutSubviews|UIViewAnimationOptionBeginFromCurrentState
-										animations:NULL];
+//    // Skips if rotating
+//    if (self.isRotating) {
+//        return;
+//    }
+//    
+//    CGFloat viewHeight = show ? [self heightForAutoCompletionView] : 0.0;
+//    
+//    if (self.autoCompletionViewHC.constant == viewHeight) {
+//        return;
+//    }
+//    
+//    if (show) {
+//        // Reload the tableview before showing it
+//        [self.autoCompletionView reloadData];
+//        [self.autoCompletionView setContentOffset:CGPointZero];
+//    }
+//    
+//    // If the autocompletion view height is bigger than the maximum height allows, it is reduce to that size. Default 140 pts.
+//    if (viewHeight > [self maximumHeightForAutoCompletionView]) {
+//        viewHeight = [self maximumHeightForAutoCompletionView];
+//    }
+//    
+//    CGFloat tableHeight = self.scrollViewHC.constant + self.autoCompletionViewHC.constant;
+//    
+//    // Only when the view extends its layout beyond it top edge
+//    if ((self.edgesForExtendedLayout & UIRectEdgeTop) > 0) {
+//        
+//        // On iOS7, the status bar isn't automatically hidden on landscape orientation
+//        if (SLK_IS_IPHONE && SLK_IS_LANDSCAPE && !SLK_IS_IOS8_AND_HIGHER) {
+//            tableHeight -= CGRectGetHeight([UIApplication sharedApplication].statusBarFrame);
+//        }
+//        
+//        tableHeight -= CGRectGetHeight(self.navigationController.navigationBar.frame);
+//    }
+//    
+//    // On iPhone, the autocompletion view can't extend beyond the table view height
+//    if (SLK_IS_IPHONE && viewHeight > tableHeight) {
+//        viewHeight = tableHeight;
+//    }
+//    
+//    self.autoCompletionViewHC.constant = viewHeight;
+//    self.autoCompleting = show;
+//    
+//    // Toggles auto-correction if requiered
+//    [self enableTypingSuggestionIfNeeded];
+//    
+//	[self.view slk_animateLayoutIfNeededWithBounce:self.bounces
+//										   options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionLayoutSubviews|UIViewAnimationOptionBeginFromCurrentState
+//										animations:NULL];
 }
 
 
@@ -1733,22 +1735,31 @@ NSString * const SLKKeyboardDidHideNotification =   @"SLKKeyboardDidHideNotifica
 - (void)setupViewConstraints
 {
     NSDictionary *views = @{@"scrollView": self.scrollViewProxy,
-                            @"autoCompletionView": self.autoCompletionView,
-                            @"typingIndicatorView": self.typingIndicatorView,
+                            @"navigationView": self.navigationView,
+                            @"invitationView": self.invitationView,
                             @"textInputbar": self.textInputbar,
                             };
     
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[scrollView(0@750)][autoCompletionView(0@750)][typingIndicatorView(0)]-0@999-[textInputbar(>=0)]|" options:0 metrics:nil views:views]];
+    self.navigationView.backgroundColor = [UIColor redColor];
+    self.invitationView.backgroundColor = [UIColor greenColor];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[navigationView(40)]-[invitationView(40)]-[scrollView(0@750)]-0@999-[textInputbar(>=0)]|" options:0 metrics:nil views:views]];
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[scrollView]|" options:0 metrics:nil views:views]];
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[autoCompletionView]|" options:0 metrics:nil views:views]];
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[typingIndicatorView]|" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[navigationView]|" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[invitationView]|" options:0 metrics:nil views:views]];
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[textInputbar]|" options:0 metrics:nil views:views]];
     
+    self.navigationViewHC = [self.view slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.navigationView secondItem:nil];
+    self.invitationViewHC = [self.view slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.invitationView secondItem:nil];
     self.scrollViewHC = [self.view slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.scrollViewProxy secondItem:nil];
-    self.autoCompletionViewHC = [self.view slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.autoCompletionView secondItem:nil];
-    self.typingIndicatorViewHC = [self.view slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.typingIndicatorView secondItem:nil];
+//    self.autoCompletionViewHC = [self.view slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.autoCompletionView secondItem:nil];
+//    self.typingIndicatorViewHC = [self.view slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.typingIndicatorView secondItem:nil];
     self.textInputbarHC = [self.view slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.textInputbar secondItem:nil];
     self.keyboardHC = [self.view slk_constraintForAttribute:NSLayoutAttributeBottom firstItem:self.view secondItem:self.textInputbar];
+    
+    GZLogFunc1(self.navigationViewHC);
+    GZLogFunc1(self.invitationViewHC);
+    self.navigationViewHC.constant = 40;
+    self.invitationViewHC.constant = 60;
     
     self.textInputbarHC.constant = [self minimumInputbarHeight];
     self.scrollViewHC.constant = [self appropriateScrollViewHeight];
@@ -1898,17 +1909,19 @@ NSString * const SLKKeyboardDidHideNotification =   @"SLKKeyboardDidHideNotifica
     _tableView.dataSource = nil;
     _tableView = nil;
     
-    _collectionView.delegate = nil;
-    _collectionView.dataSource = nil;
-    _collectionView = nil;
+//    _collectionView.delegate = nil;
+//    _collectionView.dataSource = nil;
+//    _collectionView = nil;
     
-    _autoCompletionView.delegate = nil;
-    _autoCompletionView.dataSource = nil;
-    _autoCompletionView = nil;
+    _navigationView = nil;
+    _invitationView = nil;
+//    _autoCompletionView.delegate = nil;
+//    _autoCompletionView.dataSource = nil;
+//    _autoCompletionView = nil;
     
     _textInputbar.textView.delegate = nil;
     _textInputbar = nil;
-    _typingIndicatorView = nil;
+//    _typingIndicatorView = nil;
     
     _registeredPrefixes = nil;
     _keyboardCommands = nil;
@@ -1920,8 +1933,8 @@ NSString * const SLKKeyboardDidHideNotification =   @"SLKKeyboardDidHideNotifica
     _scrollViewHC = nil;
     _textInputbarHC = nil;
     _textInputbarHC = nil;
-    _typingIndicatorViewHC = nil;
-    _autoCompletionViewHC = nil;
+    _navigationViewHC = nil;
+    _invitationViewHC = nil;
     _keyboardHC = nil;
     
     [self unregisterNotifications];

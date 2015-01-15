@@ -76,6 +76,7 @@
 		7C80E2019D456711FE02D993 /* Pods-SlackTextViewController-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-SlackTextViewController-prefix.pch"; sourceTree = "<group>"; };
 		7CD79552695989A52A1C2892 /* LoremIpsum.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = LoremIpsum.m; path = LoremIpsum/LoremIpsum.m; sourceTree = "<group>"; };
 		83D051C816335A26D943A12B /* libPods-SlackTextViewController.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SlackTextViewController.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8C2F52B51A67D52E00857DBC /* GZLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GZLog.h; sourceTree = "<group>"; };
 		94747FBC48768D763F29C8AD /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Pods.release.xcconfig; sourceTree = "<group>"; };
 		980B5DF98090306599C5DE05 /* SLKInputAccessoryView.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = SLKInputAccessoryView.m; path = Source/Classes/SLKInputAccessoryView.m; sourceTree = "<group>"; };
 		9935BDA8E5F880D06D240D13 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Pods.debug.xcconfig; sourceTree = "<group>"; };
@@ -153,6 +154,7 @@
 		3FFEA7C0664617EEBA386E86 /* SlackTextViewController */ = {
 			isa = PBXGroup;
 			children = (
+				8C2F52B51A67D52E00857DBC /* GZLog.h */,
 				B58DB8F386A9916306EC4643 /* SLKInputAccessoryView.h */,
 				980B5DF98090306599C5DE05 /* SLKInputAccessoryView.m */,
 				2241EC1178C01BF106A1E2D5 /* SLKTextInputbar.h */,

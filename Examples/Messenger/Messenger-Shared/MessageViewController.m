@@ -90,13 +90,13 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
     [self.textInputbar.editortRightButton setTintColor:[UIColor colorWithRed:0.0/255.0 green:122.0/255.0 blue:255.0/255.0 alpha:1.0]];
     
     self.textInputbar.autoHideRightButton = NO;
-    self.textInputbar.maxCharCount = 140;
-    self.textInputbar.counterStyle = SLKCounterStyleSplit;
+    self.textInputbar.maxCharCount = 0;
+    self.textInputbar.counterStyle = SLKCounterStyleNone;
     
-    self.typingIndicatorView.canResignByTouch = YES;
+//    self.typingIndicatorView.canResignByTouch = YES;
     
-    [self.autoCompletionView registerClass:[MessageTableViewCell class] forCellReuseIdentifier:AutoCompletionCellIdentifier];
-    [self registerPrefixesForAutoCompletion:@[@"@", @"#", @":"]];
+//    [self.autoCompletionView registerClass:[MessageTableViewCell class] forCellReuseIdentifier:AutoCompletionCellIdentifier];
+//    [self registerPrefixesForAutoCompletion:@[@"@", @"#", @":"]];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -134,9 +134,9 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
 
 - (void)simulateUserTyping:(id)sender
 {
-    if (!self.isEditing && !self.isAutoCompleting) {
-        [self.typingIndicatorView insertUsername:[LoremIpsum name]];
-    }
+//    if (!self.isEditing && !self.isAutoCompleting) {
+//        [self.typingIndicatorView insertUsername:[LoremIpsum name]];
+//    }
 }
 
 - (void)editCellMessage:(UIGestureRecognizer *)gesture
@@ -331,8 +331,9 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
 
 - (CGFloat)heightForAutoCompletionView
 {
-    CGFloat cellHeight = [self.autoCompletionView.delegate tableView:self.autoCompletionView heightForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-    return cellHeight*self.searchResult.count;
+    return 0;
+//    CGFloat cellHeight = [self.autoCompletionView.delegate tableView:self.autoCompletionView heightForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+//    return cellHeight*self.searchResult.count;
 }
 
 
@@ -408,29 +409,39 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
 
 - (MessageTableViewCell *)autoCompletionCellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    MessageTableViewCell *cell = (MessageTableViewCell *)[self.autoCompletionView dequeueReusableCellWithIdentifier:AutoCompletionCellIdentifier];
-    cell.indexPath = indexPath;
-    cell.usedForMessage = NO;
-
-    NSString *item = self.searchResult[indexPath.row];
-    
-    if ([self.foundPrefix isEqualToString:@"#"]) {
-        item = [NSString stringWithFormat:@"# %@", item];
-    }
-    else if ([self.foundPrefix isEqualToString:@":"]) {
-        item = [NSString stringWithFormat:@":%@:", item];
-    }
-    
-    cell.textLabel.text = item;
-    cell.textLabel.font = [UIFont systemFontOfSize:14.0];
-    cell.selectionStyle = UITableViewCellSelectionStyleDefault;
-    cell.textLabel.numberOfLines = 1;
-    
-    return cell;
+    return nil;
+//    MessageTableViewCell *cell = (MessageTableViewCell *)[self.autoCompletionView dequeueReusableCellWithIdentifier:AutoCompletionCellIdentifier];
+//    cell.indexPath = indexPath;
+//    cell.usedForMessage = NO;
+//
+//    NSString *item = self.searchResult[indexPath.row];
+//    
+//    if ([self.foundPrefix isEqualToString:@"#"]) {
+//        item = [NSString stringWithFormat:@"# %@", item];
+//    }
+//    else if ([self.foundPrefix isEqualToString:@":"]) {
+//        item = [NSString stringWithFormat:@":%@:", item];
+//    }
+//    
+//    cell.textLabel.text = item;
+//    cell.textLabel.font = [UIFont systemFontOfSize:14.0];
+//    cell.selectionStyle = UITableViewCellSelectionStyleDefault;
+//    cell.textLabel.numberOfLines = 1;
+//    
+//    return cell;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    CGFloat y;
+    BOOL showDateSeparator = YES;
+    if (showDateSeparator) {
+        y = 24;
+    }
+    else {
+        y = 0;
+    }
+    
     NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
     paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
     paragraphStyle.alignment = NSTextAlignmentLeft;
@@ -438,58 +449,65 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
     NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:14.0f],
                                  NSParagraphStyleAttributeName: paragraphStyle};
     
-    CGSize labelSize =[self.messages[indexPath.row] boundingRectWithSize:CGSizeMake(226.0f, MAXFLOAT)
-                                                           options:NSStringDrawingUsesLineFragmentOrigin
-                                                        attributes:attributes
-                                                           context:nil].size;
-    return labelSize.height + 30 + TOP_MARGIN < 80 ? 80 : labelSize.height + 30 + TOP_MARGIN;
-    
-//    if ([tableView isEqual:self.tableView]) {
-//        NSString *message = self.messages[indexPath.row];
-//        
-//        NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
-//        paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
-//        paragraphStyle.alignment = NSTextAlignmentLeft;
-//        
-//        NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:16.0],
-//                                     NSParagraphStyleAttributeName: paragraphStyle};
-//        
-//        CGFloat width = CGRectGetWidth(tableView.frame)-(kAvatarSize*2.0+10);
-//        
-//        CGRect bounds = [message boundingRectWithSize:CGSizeMake(width, 0.0) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:NULL];
-//        
-//        if (message.length == 0) {
-//            return 0.0;
-//        }
-//        
-//        CGFloat height = roundf(CGRectGetHeight(bounds)+kAvatarSize);
-//        
-//        if (height < kMinimumHeight) {
-//            height = kMinimumHeight;
-//        }
-//        
-//        return height;
-//    }
-//    else {
-//        return kMinimumHeight;
-//    }
+    NSString* bubbletype = @"LEFT";
+    if ([bubbletype isEqualToString:@"LEFT"])
+    {
+        CGFloat offset = 68 + 16 + 10 + 60;
+        CGSize labelSize =[self.messages[indexPath.row] boundingRectWithSize:CGSizeMake(self.tableView.frame.size.width-offset, MAXFLOAT)
+                                                            options:NSStringDrawingUsesLineFragmentOrigin
+                                                         attributes:attributes
+                                                            context:nil].size;
+        
+        NSString* name = @"hello";
+        if (name) {
+            y += 4 + 18;
+        }
+        
+        y = y + 4 + labelSize.height + 18;
+        
+        // 2는 여유 공간.
+        return y > 10+TOP_MARGIN + 50? y + 2: 10 + TOP_MARGIN + 50 + 2;
+    }
+    else {
+        // Right
+        CGFloat offset = 10 + 60 + 16   + 8 + 10;
+        CGSize labelSize =[self.messages[indexPath.row] boundingRectWithSize:CGSizeMake(self.tableView.frame.size.width-offset, MAXFLOAT)
+                                                            options:NSStringDrawingUsesLineFragmentOrigin
+                                                         attributes:attributes
+                                                            context:nil].size;
+        
+        NSString* name = @"hello";
+        if (name) {
+            y += 4 + 18;
+        }
+        
+        // 2는 여유 공간.
+        y = y + 4 + labelSize.height + 18 + 2;
+        
+        return y;
+    }
+}
+
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    return 80;
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
-    if ([tableView isEqual:self.autoCompletionView]) {
-        UIView *topView = [UIView new];
-        topView.backgroundColor = self.autoCompletionView.separatorColor;
-        return topView;
-    }
+//    if ([tableView isEqual:self.autoCompletionView]) {
+//        UIView *topView = [UIView new];
+//        topView.backgroundColor = self.autoCompletionView.separatorColor;
+//        return topView;
+//    }
     return nil;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-    if ([tableView isEqual:self.autoCompletionView]) {
-        return 0.5;
-    }
+//    if ([tableView isEqual:self.autoCompletionView]) {
+//        return 0.5;
+//    }
     return 0.0;
 }
 
@@ -498,18 +516,18 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if ([tableView isEqual:self.autoCompletionView]) {
-        
-        NSMutableString *item = [self.searchResult[indexPath.row] mutableCopy];
-        
-        if ([self.foundPrefix isEqualToString:@"@"] || [self.foundPrefix isEqualToString:@":"]) {
-            [item appendString:@":"];
-        }
-        
-        [item appendString:@" "];
-        
-        [self acceptAutoCompletionWithString:item];
-    }
+//    if ([tableView isEqual:self.autoCompletionView]) {
+//        
+//        NSMutableString *item = [self.searchResult[indexPath.row] mutableCopy];
+//        
+//        if ([self.foundPrefix isEqualToString:@"@"] || [self.foundPrefix isEqualToString:@":"]) {
+//            [item appendString:@":"];
+//        }
+//        
+//        [item appendString:@" "];
+//        
+//        [self acceptAutoCompletionWithString:item];
+//    }
 }
 
 

@@ -10,6 +10,13 @@
 #import "UIImage+Utils.h"
 #import "Constantvalues.h"
 
+@interface SPHTextBubbleCell ()
+
+@property(nonatomic, strong) UILabel* topDateLabel;
+@property(nonatomic, strong) UILabel* nameLabel;
+@property(nonatomic, strong) UIView* menuView;
+
+@end
 
 
 @implementation SPHTextBubbleCell
@@ -35,12 +42,35 @@
         _timestampLabel = [[UILabel alloc] init];
         _timestampLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
         _timestampLabel.textAlignment = NSTextAlignmentCenter;
-        _timestampLabel.backgroundColor = [UIColor clearColor];
+        _timestampLabel.backgroundColor = [UIColor grayColor];
         _timestampLabel.font = [UIFont systemFontOfSize:12.0f];
         _timestampLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
         _timestampLabel.frame = CGRectMake(0.0f, 12, self.bounds.size.width, 18);
         
-        [self.contentView addSubview:_timestampLabel];
+//        [self.contentView addSubview:_timestampLabel];
+        
+        _topDateLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+//        _topDateLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+        _topDateLabel.textAlignment = NSTextAlignmentCenter;
+        _topDateLabel.backgroundColor = [UIColor grayColor];
+        _topDateLabel.font = [UIFont systemFontOfSize:12.0f];
+        _topDateLabel.textColor = [UIColor blackColor];
+        _topDateLabel.frame = CGRectMake(10.0f, 6, self.bounds.size.width -20, 18);
+        [self.contentView addSubview:_topDateLabel];
+        [[_topDateLabel layer] setMasksToBounds:YES];
+        [[_topDateLabel layer] setCornerRadius:_topDateLabel.frame.size.height/2.0];
+        
+        self.nameLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+        self.nameLabel.textAlignment = NSTextAlignmentLeft;
+        self.nameLabel.backgroundColor = [UIColor redColor];
+        self.nameLabel.font = [UIFont systemFontOfSize:12.0f];
+        self.nameLabel.textColor = [UIColor darkGrayColor];
+        
+        self.menuView = [[UIView alloc] initWithFrame:CGRectZero];
+        self.menuView.backgroundColor = [UIColor redColor];
+        
+        [self.contentView addSubview:self.nameLabel];
+        [self.contentView addSubview:self.menuView];
         
         messageBackgroundView = [[UIImageView alloc] initWithFrame:self.textLabel.frame];
         [self.contentView insertSubview:messageBackgroundView belowSubview:self.textLabel];
@@ -55,12 +85,10 @@
         
         self.selectionStyle = UITableViewCellSelectionStyleNone;
     
-        UILongPressGestureRecognizer *lpgr
-        = [[UILongPressGestureRecognizer alloc]
-           initWithTarget:self action:@selector(tapRecognized:)];
-        lpgr.minimumPressDuration = .4; //seconds
-        lpgr.delegate = self;
-        [self addGestureRecognizer:lpgr];
+//        UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(tapRecognized:)];
+//        lpgr.minimumPressDuration = .4; //seconds
+//        lpgr.delegate = self;
+//        [self addGestureRecognizer:lpgr];
         
     }
     
@@ -124,68 +152,103 @@
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-    CGSize labelSize =[self.textLabel.text boundingRectWithSize:CGSizeMake(self.frame.size.width-94, MAXFLOAT)
-                                                        options:NSStringDrawingUsesLineFragmentOrigin
-                                                     attributes:@{ NSFontAttributeName:[UIFont systemFontOfSize:14.0f] }
-                                                        context:nil].size;
+    
+    CGFloat y;
+    self.showDateSeparator = YES;
+    if (self.showDateSeparator) {
+        _topDateLabel.frame = CGRectMake(10.0f, 6, self.bounds.size.width -20, 18);
+        y = 24;
+    }
+    else {
+        _topDateLabel.frame = CGRectZero;
+        y = 0;
+    }
+    
+    self.bubbletype = @"LEFT";
     if ([self.bubbletype isEqualToString:@"LEFT"])
     {
+        CGFloat offset = 68 + 16 + 10 + 60;
+        CGSize labelSize =[self.textLabel.text boundingRectWithSize:CGSizeMake(self.frame.size.width-offset, MAXFLOAT)
+                                                            options:NSStringDrawingUsesLineFragmentOrigin
+                                                         attributes:@{ NSFontAttributeName:[UIFont systemFontOfSize:14.0f] }
+                                                            context:nil].size;
+        self.name = @"hello";
+        if (self.name) {
+            self.nameLabel.frame = CGRectMake(68, y+4, self.bounds.size.width -68-10, 18);
+            self.nameLabel.text = self.name;
+            y += 4 + 18;
+        }
+        else {
+            self.nameLabel.frame = CGRectZero;
+        }
+        
         CGRect textLabelFrame = self.textLabel.frame;
         textLabelFrame.origin.x = 68;
-        textLabelFrame.size.width = self.frame.size.width-94;
+        textLabelFrame.origin.y = y + 4 + 12;
+        textLabelFrame.size.width = self.frame.size.width - offset;
         textLabelFrame.size.height = labelSize.height;
-        textLabelFrame.origin.y = 20.0f + TOP_MARGIN;
         self.textLabel.frame = textLabelFrame;
         messageBackgroundView.frame = CGRectMake(60, textLabelFrame.origin.y - 12, labelSize.width + 16,labelSize.height + 18);
         self.AvatarImageView.frame=CGRectMake(5,10+TOP_MARGIN, 50, 50);
+        self.menuView.frame = CGRectMake(messageBackgroundView.frame.origin.x + messageBackgroundView.frame.size.width, messageBackgroundView.frame.origin.y+messageBackgroundView.frame.size.height - 30, 60, 30);
       
-        
-//        UIImage *coloredImage = [[UIImage imageNamed:@"talk_bubble_left.png"] maskWithColor:BLUE_TEXT_HIGHLIGHT_COLOR];
         messageBackgroundView.image = [[UIImage imageNamed:@"talk_bubble_left.png"] stretchableImageWithLeftCapWidth:20 topCapHeight:25];
         
-    }else
-    {
+    }
+    else {
         // Right
+        CGFloat offset = 10 + 60 + 16   + 8 + 10;
+        CGSize labelSize =[self.textLabel.text boundingRectWithSize:CGSizeMake(self.frame.size.width-offset, MAXFLOAT)
+                                                            options:NSStringDrawingUsesLineFragmentOrigin
+                                                         attributes:@{ NSFontAttributeName:[UIFont systemFontOfSize:14.0f] }
+                                                            context:nil].size;
+        
+        self.name = @"hello";
+        if (self.name) {
+            self.nameLabel.frame = CGRectMake(0, y+4, self.bounds.size.width -10, 18);
+            self.nameLabel.text = self.name;
+            self.nameLabel.textAlignment = NSTextAlignmentRight;
+            y += 4 + 18;
+        }
+        else {
+            self.nameLabel.frame = CGRectZero;
+        }
         
         CGRect textLabelFrame = self.textLabel.frame;
-        textLabelFrame.size.width = self.frame.size.width-94;
+        textLabelFrame.size.width = labelSize.width;
+        textLabelFrame.size.height = labelSize.height;
+        textLabelFrame.origin.y = y + 4 + 12;
+        textLabelFrame.origin.x = self.frame.size.width - labelSize.width - 8 - 10;
         self.textLabel.frame = textLabelFrame;
         
-        textLabelFrame.size.height = labelSize.height + 6;
-        textLabelFrame.origin.y = 20.0f + TOP_MARGIN;
-        textLabelFrame.origin.x = self.bounds.size.width - labelSize.width - 70;
-        self.textLabel.frame = textLabelFrame;
-        
-        messageBackgroundView.frame = CGRectMake(textLabelFrame.origin.x -8, textLabelFrame.origin.y - 2, labelSize.width + 16, labelSize.height + 18);
+        messageBackgroundView.frame = CGRectMake(textLabelFrame.origin.x - 16, textLabelFrame.origin.y - 12, labelSize.width + 16 + 8, labelSize.height + 18);
          messageBackgroundView.image = [[UIImage imageNamed:@"talk_bubble_right.png"] stretchableImageWithLeftCapWidth:20 topCapHeight:25];
         
-        self.AvatarImageView.frame=CGRectMake( self.frame.size.width-55,10+TOP_MARGIN, 50, 50);
-        
+        self.menuView.frame = CGRectMake(messageBackgroundView.frame.origin.x - 60, messageBackgroundView.frame.origin.y+messageBackgroundView.frame.size.height - 30, 60, 30);
+        self.AvatarImageView.frame = CGRectZero;
     }
     
 }
 
 // ***********************************================================================******************************//
 
-- (void)drawRect:(CGRect)rect {
-    [super drawRect:rect];
-    
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    CGContextSetStrokeColorWithColor(context, [UIColor colorWithRed:0 green:0 blue:0 alpha:0.1].CGColor);
-    
-    CGContextSetLineWidth(context, 1.0);
-    CGContextMoveToPoint(context, 0, 21); //start at this point
-    CGContextAddLineToPoint(context, (self.bounds.size.width - 120) / 2, 21); //draw to this point
-    
-    CGContextMoveToPoint(context, self.bounds.size.width, 21); //start at this point
-    CGContextAddLineToPoint(context, self.bounds.size.width - (self.bounds.size.width - 120) / 2, 21); //draw to this point
-    
-    CGContextStrokePath(context);
-    
-}
+//- (void)drawRect:(CGRect)rect {
+//    [super drawRect:rect];
+//    
+//    CGContextRef context = UIGraphicsGetCurrentContext();
+//    CGContextSetStrokeColorWithColor(context, [UIColor colorWithRed:0 green:0 blue:0 alpha:0.1].CGColor);
+//    
+//    CGContextSetLineWidth(context, 1.0);
+//    CGContextMoveToPoint(context, 0, 21); //start at this point
+//    CGContextAddLineToPoint(context, (self.bounds.size.width - 120) / 2, 21); //draw to this point
+//    
+//    CGContextMoveToPoint(context, self.bounds.size.width, 21); //start at this point
+//    CGContextAddLineToPoint(context, self.bounds.size.width - (self.bounds.size.width - 120) / 2, 21); //draw to this point
+//    
+//    CGContextStrokePath(context);
+//    
+//}
 
 // ***********************************================================================******************************//
-
-
 
 @end

@@ -15,9 +15,16 @@
     UIImageView *messageBackgroundView;
 }
 
-@property(nonatomic, retain) UILabel *timestampLabel;
+@property(nonatomic, strong) UILabel *timestampLabel;
 @property (nonatomic,strong) NSString *bubbletype;
 @property (nonatomic,strong) UIImageView *AvatarImageView;
+@property(nonatomic, readonly) UILabel* topDateLabel;
+@property(nonatomic, readonly) UILabel* nameLabel;
+@property(nonatomic, readonly) UIView* menuView;
+
+@property(nonatomic, assign) BOOL showDateSeparator;
+@property(nonatomic, strong) NSDate* date;
+@property(nonatomic, strong) NSString* name;
 
 @property (nonatomic, assign) id <TextCellDelegate> CustomDelegate;
 
