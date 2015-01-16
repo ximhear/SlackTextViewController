@@ -29,7 +29,7 @@
 @property (nonatomic, assign) id <TextCellDelegate> CustomDelegate;
 
 - (void)showMenu;
-
++(CGFloat)height:(NSString*)message showDateSeparator:(BOOL)showDateSeparator bubbleType:(NSString*)bubbletype frame:(CGRect)frame name:(NSString*)name;
 
 @end
 

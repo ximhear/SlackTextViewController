@@ -155,7 +155,7 @@
     [super layoutSubviews];
     
     CGFloat y;
-    self.showDateSeparator = YES;
+    self.showDateSeparator = (self.textLabel.tag % 2 == 0 ? YES : NO);
     if (self.showDateSeparator) {
         _topDateLabel.frame = CGRectMake(10.0f, 6, self.bounds.size.width -20, 18);
         y = 24;
@@ -165,9 +165,9 @@
         y = 0;
     }
     
-    GZLogCGRect(self.frame);
+//    GZLogCGRect(self.frame);
     
-    self.bubbletype = @"LEFT";
+    self.bubbletype = (self.textLabel.tag % 2 == 0 ? @"LEFT" : @"RIGHT");
     if ([self.bubbletype isEqualToString:@"LEFT"])
     {
         CGFloat offset = 68 + 16 + 10 + 60;
@@ -254,4 +254,58 @@
 
 // ***********************************================================================******************************//
 
++(CGFloat)height:(NSString*)message showDateSeparator:(BOOL)showDateSeparator bubbleType:(NSString*)bubbletype frame:(CGRect)frame name:(NSString*)name  {
+    
+    CGFloat y;
+//    showDateSeparator = NO;
+    if (showDateSeparator) {
+        y = 24;
+    }
+    else {
+        y = 0;
+    }
+    
+    NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
+    paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
+    paragraphStyle.alignment = NSTextAlignmentLeft;
+    
+    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:14.0f],
+                                 NSParagraphStyleAttributeName: paragraphStyle};
+    
+//    GZLogCGRect(frame);
+    if ([bubbletype isEqualToString:@"LEFT"])
+    {
+        CGFloat offset = 68 + 16 + 10 + 60;
+        CGSize labelSize =[message boundingRectWithSize:CGSizeMake(frame.size.width-offset, MAXFLOAT)
+                                                options:NSStringDrawingUsesLineFragmentOrigin
+                                             attributes:attributes
+                                                context:nil].size;
+        
+        if (name) {
+            y += 4 + 18;
+        }
+        
+        y = y + 4 + labelSize.height + 18;
+        
+        // 2는 여유 공간.
+        return y > 10+TOP_MARGIN + 50? y + 2: 10 + TOP_MARGIN + 50 + 2;
+    }
+    else {
+        // Right
+        CGFloat offset = 10 + 60 + 16   + 8 + 10;
+        CGSize labelSize =[message boundingRectWithSize:CGSizeMake(frame.size.width-offset, MAXFLOAT)
+                                                options:NSStringDrawingUsesLineFragmentOrigin
+                                             attributes:attributes
+                                                context:nil].size;
+        
+        if (name) {
+            y += 4 + 18;
+        }
+        
+        // 2는 여유 공간.
+        y = y + 4 + labelSize.height + 18 + 2;
+        
+        return y;
+    }
+}
 @end

@@ -51,14 +51,19 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface SLKTextViewController : UIViewController 
 /** The bottom toolbar containing a text view and buttons. */
 @property (nonatomic, readonly) SLKTextInputbar *textInputbar;
 
-///** The typing indicator used to display user names horizontally. */
-//@property (nonatomic, readonly) SLKTypingIndicatorView *typingIndicatorView;
-
 /** 상단 내비게이션용 View */
 @property(nonatomic, strong) UIView* navigationView;
 
 /** 내비게이션용 View 아래의 초대 목록을 표시하는 View */
 @property(nonatomic, strong) UIView* invitationView;
+
+/** 하단/입력박스 위에 있는 귓속말 알림 View  */
+@property(nonatomic, strong) UIView* whisperView;
+
+// Auto-Layout height constraints
+@property (nonatomic, strong) NSLayoutConstraint *navigationViewHC;
+@property (nonatomic, strong) NSLayoutConstraint *invitationViewHC;
+@property (nonatomic, strong) NSLayoutConstraint *whisperViewHC;
 
 /** The single tap gesture used to dismiss the keyboard */
 @property (nonatomic, readonly) UIGestureRecognizer *singleTapGesture;
@@ -299,73 +304,6 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface SLKTextViewController : UIViewController 
 
 
 ///------------------------------------------------
-/// @name Text Auto-Completion
-///------------------------------------------------
-
-/** The table view used to display autocompletion results. */
-//@property (nonatomic, readonly) UITableView *autoCompletionView;
-
-/** The recently found prefix symbol used as prefix for autocompletion mode. */
-@property (nonatomic, readonly) NSString *foundPrefix;
-
-/** The range of the found prefix in the text view content. */
-@property (nonatomic, readonly) NSRange foundPrefixRange;
-
-/** The recently found word at the text view's caret position. */
-@property (nonatomic, readonly) NSString *foundWord;
-
-/** YES if the autocompletion mode is active. */
-@property (nonatomic, readonly, getter = isAutoCompleting) BOOL autoCompleting;
-
-/** An array containing all the registered prefix strings for autocompletion. */
-@property (nonatomic, readonly) NSArray *registeredPrefixes;
-
-/**
- Registers any string prefix for autocompletion detection, useful for user mentions and/or hashtags autocompletion.
- The prefix must be valid NSString (i.e: '@', '#', '\', and so on). This also checks if no repeated prefix is inserted.
- 
- @param prefixes An array of prefix strings.
- */
-- (void)registerPrefixesForAutoCompletion:(NSArray *)prefixes;
-
-/**
- Verifies that the autocompletion view should be shown. Default is NO.
- To enabled autocompletion, MUST override this method to perform additional tasks, before the autocompletion view is shown (i.e. populating the data source).
- 
- @return YES if the autocompletion view should be shown.
- */
-- (BOOL)canShowAutoCompletion;
-
-/**
- Returns a custom height for the autocompletion view. Default is 0.0.
- You can override this method to return a custom height.
-
- @return The autocompletion view's height.
- */
-- (CGFloat)heightForAutoCompletionView;
-
-/**
- Returns the maximum height for the autocompletion view. Default is 140.0.
- You can override this method to return a custom max height.
-
- @return The autocompletion view's max height.
- */
-- (CGFloat)maximumHeightForAutoCompletionView;
-
-/**
- Cancels and hides the autocompletion view, animated.
- */
-- (void)cancelAutoCompletion;
-
-/** 
- Accepts the autocompletion, replacing the detected key and word with a new string.
- 
- @param string The string to be used for replacing autocompletion placeholders.
- */
-- (void)acceptAutoCompletionWithString:(NSString *)string;
-
-
-///------------------------------------------------
 /// @name Text Caching
 ///------------------------------------------------
 
@@ -405,5 +343,10 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface SLKTextViewController : UIViewController 
 
 /** UIGestureRecognizerDelegate */
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer NS_REQUIRES_SUPER;
+
+//
+//
+//
+- (void)setupViewConstraints:(void (^)(void))setupBlock;
 
 @end

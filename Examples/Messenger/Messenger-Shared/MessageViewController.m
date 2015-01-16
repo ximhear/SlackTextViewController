@@ -11,13 +11,15 @@
 #import "SPHTextBubbleCell.h"
 #import "Constantvalues.h"
 #import "GZLog.h"
+#import "UserInvitationView.h"
 
 #import <LoremIpsum/LoremIpsum.h>
 
-static NSString *MessengerCellIdentifier = @"MessengerCell";
-static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
+@interface MessageViewController ()<UICollectionViewDataSource, UICollectionViewDelegate>
 
-@interface MessageViewController ()
+@property(nonatomic, assign) BOOL invitationViewExpanded;
+@property(nonatomic, assign) BOOL userInvitationViewShowed;
+@property(nonatomic, strong) UICollectionView* userCollectionView;
 
 @property (nonatomic, strong) NSMutableArray *messages;
 
@@ -50,6 +52,94 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
 
 
 #pragma mark - View lifecycle
+- (void)loadView
+{
+    [super loadView];
+
+    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
+    layout.minimumLineSpacing = 5;
+    layout.minimumInteritemSpacing = 5;
+    
+    UICollectionView* collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:layout];
+    collectionView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.userCollectionView = collectionView;
+    collectionView.dataSource = self;
+    collectionView.delegate = self;
+    [collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"cellIdentifier"];
+    [collectionView setBackgroundColor:[UIColor redColor]];
+
+    [self setupViewConstraints:^{
+        self.navigationViewHC.constant = 40;
+        self.invitationViewHC.constant = 40;
+        self.whisperViewHC.constant = 40;
+        
+        {
+            UIButton* backBtn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+            backBtn.translatesAutoresizingMaskIntoConstraints = NO;
+            [backBtn setTitle:@"Back" forState:UIControlStateNormal];
+            [backBtn addTarget:self action:@selector(backBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+            [self.navigationView addSubview:backBtn];
+            
+            NSDictionary *views = @{@"backBtn": backBtn};
+            [self.navigationView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-5-[backBtn]-5-|" options:0 metrics:nil views:views]];
+            [self.navigationView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[backBtn(80)]-(>=0@750)-|" options:0 metrics:nil views:views]];
+        }
+        
+        {
+            UILabel* titleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+            titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
+            titleLabel.text = @"대화방";
+            [self.invitationView addSubview:titleLabel];
+            
+            UIButton* expandBtn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+            expandBtn.translatesAutoresizingMaskIntoConstraints = NO;
+            [expandBtn setTitle:@"Expand" forState:UIControlStateNormal];
+            [expandBtn addTarget:self action:@selector(expandBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+            [self.invitationView addSubview:expandBtn];
+            
+            UIButton* inviteBtn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+            inviteBtn.translatesAutoresizingMaskIntoConstraints = NO;
+            [inviteBtn setTitle:@"Invite" forState:UIControlStateNormal];
+            [inviteBtn addTarget:self action:@selector(inviteBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+            [self.invitationView addSubview:inviteBtn];
+            
+            UIButton* exitBtn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+            exitBtn.translatesAutoresizingMaskIntoConstraints = NO;
+            [exitBtn setTitle:@"Exit" forState:UIControlStateNormal];
+            [exitBtn addTarget:self action:@selector(exitBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+            [self.invitationView addSubview:exitBtn];
+            
+            [self.invitationView addSubview:collectionView];
+
+            NSDictionary *views = @{@"titleLabel":titleLabel,
+                                    @"expandBtn": expandBtn,
+                                    @"inviteBtn": inviteBtn,
+                                    @"exitBtn": exitBtn,
+                                    @"collectionView": collectionView,
+                                    };
+            [self.invitationView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-5-[titleLabel]-(>=5@750)-|" options:0 metrics:nil views:views]];
+            [self.invitationView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-5-[expandBtn(30)]-(>=5@750)-|" options:0 metrics:nil views:views]];
+            [self.invitationView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-5-[inviteBtn(==expandBtn)]-(>=5@750)-|" options:0 metrics:nil views:views]];
+            [self.invitationView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-5-[exitBtn(==expandBtn)]-2.5-[collectionView(>=100@750)]-2.5-|" options:0 metrics:nil views:views]];
+            [self.invitationView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-5-[titleLabel]-(>=0@750)-[expandBtn(60)]-[inviteBtn(44)]-[exitBtn(44)]|" options:0 metrics:nil views:views]];
+            [self.invitationView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-5-[collectionView]-5-|" options:0 metrics:nil views:views]];
+        }
+
+        {
+            UIButton* whisperCloseBtn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+            whisperCloseBtn.translatesAutoresizingMaskIntoConstraints = NO;
+            [whisperCloseBtn setTitle:@"Close" forState:UIControlStateNormal];
+            [whisperCloseBtn addTarget:self action:@selector(whisperCloseBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+            [self.whisperView addSubview:whisperCloseBtn];
+            
+            NSDictionary *views = @{@"whisperCloseBtn": whisperCloseBtn};
+            [self.whisperView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-5-[whisperCloseBtn]-5-|" options:0 metrics:nil views:views]];
+            [self.whisperView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0@750-[whisperCloseBtn(80)]|" options:0 metrics:nil views:views]];
+        }
+    }];
+    
+    [collectionView reloadData];
+}
 
 - (void)viewDidLoad
 {
@@ -73,7 +163,6 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
     self.inverted = YES;
     
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    [self.tableView registerClass:[MessageTableViewCell class] forCellReuseIdentifier:MessengerCellIdentifier];
     [self.tableView registerClass:[SPHTextBubbleCell class] forCellReuseIdentifier:@"SPHTextBubbleCell"];
 
     self.textView.placeholder = NSLocalizedString(@"Message", nil);
@@ -115,6 +204,20 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
+}
+
+-(void)viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+    
+    GZLogFunc1(self.userCollectionView);
+    GZLogFunc1(self.tableView);
+    
+    if (self.invitationViewExpanded == YES && self.userInvitationViewShowed == NO) {
+        if (self.userCollectionView.contentSize.height < self.tableView.frame.size.height) {
+            self.invitationViewHC.constant = 40 + self.userCollectionView.contentSize.height;
+            [self.view layoutIfNeeded];
+        }
+    }
 }
 
 
@@ -294,50 +397,6 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
     return [super canPressRightButton];
 }
 
-- (BOOL)canShowAutoCompletion
-{
-    NSArray *array = nil;
-    NSString *prefix = self.foundPrefix;
-    NSString *word = self.foundWord;
-    
-    self.searchResult = nil;
-    
-    if ([prefix isEqualToString:@"@"])
-    {
-        array = self.users;
-        
-        if (word.length > 0) {
-            array = [array filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self BEGINSWITH[c] %@", word]];
-        }
-    }
-    else if ([prefix isEqualToString:@"#"])
-    {
-        array = self.channels;
-        if (word.length > 0) {
-            array = [array filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self BEGINSWITH[c] %@", word]];
-        }
-    }
-    else if ([prefix isEqualToString:@":"] && word.length > 0) {
-        array = [self.emojis filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self BEGINSWITH[c] %@", word]];
-    }
-    
-    if (array.count > 0) {
-        array = [array sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-    }
-    
-    self.searchResult = [[NSMutableArray alloc] initWithArray:array];
-    
-    return self.searchResult.count > 0;
-}
-
-- (CGFloat)heightForAutoCompletionView
-{
-    return 0;
-//    CGFloat cellHeight = [self.autoCompletionView.delegate tableView:self.autoCompletionView heightForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-//    return cellHeight*self.searchResult.count;
-}
-
-
 #pragma mark - UITableViewDataSource Methods
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -357,49 +416,24 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if ([tableView isEqual:self.tableView]) {
-        return [self messageCellForRowAtIndexPath:indexPath];
-    }
-    else {
-        return [self autoCompletionCellForRowAtIndexPath:indexPath];
-    }
+    return [self messageCellForRowAtIndexPath:indexPath];
 }
 
 - (SPHTextBubbleCell *)messageCellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     SPHTextBubbleCell *cell = (SPHTextBubbleCell *)[self.tableView dequeueReusableCellWithIdentifier:@"SPHTextBubbleCell"];
     
-//    if (!cell.textLabel.text) {
-//        UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(editCellMessage:)];
-//        [cell addGestureRecognizer:longPress];
-//    }
-    
     NSString *message = self.messages[indexPath.row];
-    cell.bubbletype=@"LEFT";//:@"RIGHT";
+    if (indexPath.row % 2 == 0) {
+        cell.bubbletype=@"LEFT";//:@"RIGHT";
+        cell.AvatarImageView.image=[UIImage imageNamed:@"ProfilePic"];
+    }
+    else {
+        cell.bubbletype=@"RIGHT";//:@"RIGHT";
+    }
     cell.textLabel.text = message;
     cell.textLabel.tag=indexPath.row;
     cell.timestampLabel.text = @"02:20 AM";
-//    cell.CustomDelegate=self;
-    cell.AvatarImageView.image=[UIImage imageNamed:@"ProfilePic"];
-    
-//    cell.indexPath = indexPath;
-//    cell.usedForMessage = YES;
-    
-//    if (cell.needsPlaceholder)
-//    {
-//        CGFloat scale = [UIScreen mainScreen].scale;
-//        
-//        if ([[UIScreen mainScreen] respondsToSelector:@selector(nativeScale)]) {
-//            scale = [UIScreen mainScreen].nativeScale;
-//        }
-//        
-//        CGSize imgSize = CGSizeMake(kAvatarSize*scale, kAvatarSize*scale);
-//        
-//        [LoremIpsum asyncPlaceholderImageWithSize:imgSize
-//                                       completion:^(UIImage *image) {
-//                                           [cell setPlaceholder:image scale:scale];
-//                                       }];
-//    }
     
     // Cells must inherit the table view's transform
     // This is very important, since the main table view may be inverted
@@ -408,128 +442,32 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
     return cell;
 }
 
-- (MessageTableViewCell *)autoCompletionCellForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    return nil;
-//    MessageTableViewCell *cell = (MessageTableViewCell *)[self.autoCompletionView dequeueReusableCellWithIdentifier:AutoCompletionCellIdentifier];
-//    cell.indexPath = indexPath;
-//    cell.usedForMessage = NO;
-//
-//    NSString *item = self.searchResult[indexPath.row];
-//    
-//    if ([self.foundPrefix isEqualToString:@"#"]) {
-//        item = [NSString stringWithFormat:@"# %@", item];
-//    }
-//    else if ([self.foundPrefix isEqualToString:@":"]) {
-//        item = [NSString stringWithFormat:@":%@:", item];
-//    }
-//    
-//    cell.textLabel.text = item;
-//    cell.textLabel.font = [UIFont systemFontOfSize:14.0];
-//    cell.selectionStyle = UITableViewCellSelectionStyleDefault;
-//    cell.textLabel.numberOfLines = 1;
-//    
-//    return cell;
-}
-
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    CGFloat y;
-    BOOL showDateSeparator = YES;
-    if (showDateSeparator) {
-        y = 24;
+    if (indexPath.row % 2 == 0) {
+        return [SPHTextBubbleCell height:self.messages[indexPath.row]
+                       showDateSeparator:YES
+                              bubbleType:@"LEFT"
+                                   frame:self.tableView.frame
+                                    name:@"left name"];
     }
     else {
-        y = 0;
-    }
-    
-    NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
-    paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
-    paragraphStyle.alignment = NSTextAlignmentLeft;
-    
-    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:14.0f],
-                                 NSParagraphStyleAttributeName: paragraphStyle};
-    
-    GZLogCGRect(self.tableView.frame);
-    NSString* bubbletype = @"LEFT";
-    if ([bubbletype isEqualToString:@"LEFT"])
-    {
-        CGFloat offset = 68 + 16 + 10 + 60;
-        CGSize labelSize =[self.messages[indexPath.row] boundingRectWithSize:CGSizeMake(self.tableView.frame.size.width-offset, MAXFLOAT)
-                                                            options:NSStringDrawingUsesLineFragmentOrigin
-                                                         attributes:attributes
-                                                            context:nil].size;
-        
-        NSString* name = @"hello";
-        if (name) {
-            y += 4 + 18;
-        }
-        
-        y = y + 4 + labelSize.height + 18;
-        
-        // 2는 여유 공간.
-        return y > 10+TOP_MARGIN + 50? y + 2: 10 + TOP_MARGIN + 50 + 2;
-    }
-    else {
-        // Right
-        CGFloat offset = 10 + 60 + 16   + 8 + 10;
-        CGSize labelSize =[self.messages[indexPath.row] boundingRectWithSize:CGSizeMake(self.tableView.frame.size.width-offset, MAXFLOAT)
-                                                            options:NSStringDrawingUsesLineFragmentOrigin
-                                                         attributes:attributes
-                                                            context:nil].size;
-        
-        NSString* name = @"hello";
-        if (name) {
-            y += 4 + 18;
-        }
-        
-        // 2는 여유 공간.
-        y = y + 4 + labelSize.height + 18 + 2;
-        
-        return y;
-    }
-}
+        return [SPHTextBubbleCell height:self.messages[indexPath.row]
+                       showDateSeparator:NO
+                              bubbleType:@"RIGHT"
+                                   frame:self.tableView.frame
+                                    name:@"right name"];
+    }}
 
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
 
     return 80;
 }
 
-- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
-{
-//    if ([tableView isEqual:self.autoCompletionView]) {
-//        UIView *topView = [UIView new];
-//        topView.backgroundColor = self.autoCompletionView.separatorColor;
-//        return topView;
-//    }
-    return nil;
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
-{
-//    if ([tableView isEqual:self.autoCompletionView]) {
-//        return 0.5;
-//    }
-    return 0.0;
-}
-
-
 #pragma mark - UITableViewDelegate Methods
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-//    if ([tableView isEqual:self.autoCompletionView]) {
-//        
-//        NSMutableString *item = [self.searchResult[indexPath.row] mutableCopy];
-//        
-//        if ([self.foundPrefix isEqualToString:@"@"] || [self.foundPrefix isEqualToString:@":"]) {
-//            [item appendString:@":"];
-//        }
-//        
-//        [item appendString:@" "];
-//        
-//        [self acceptAutoCompletionWithString:item];
-//    }
 }
 
 
@@ -539,6 +477,106 @@ static NSString *AutoCompletionCellIdentifier = @"AutoCompletionCell";
 {
     // Since SLKTextViewController uses UIScrollViewDelegate to update a few things, it is important that if you ovveride this method, to call super.
     [super scrollViewDidScroll:scrollView];
+}
+
+-(void)whisperCloseBtnClicked:(id)sender {
+    GZLogFunc0();
+    
+    [UIView animateWithDuration:0.25 animations:^{
+        
+        self.whisperViewHC.constant = 0;
+        [self.view layoutIfNeeded];
+    }];
+}
+
+-(void)backBtnClicked:(id)sender {
+    GZLogFunc0();
+    
+}
+
+-(void)expandBtnClicked:(id)sender {
+    GZLogFunc0();
+    
+    if (self.invitationViewExpanded) {
+        self.invitationViewExpanded = NO;
+    }
+    else {
+        self.invitationViewExpanded = YES;
+    }
+    
+    [UIView animateWithDuration:0.25 animations:^{
+        
+        if (self.invitationViewExpanded) {
+            self.invitationViewHC.constant = 100;
+        }
+        else {
+            self.invitationViewHC.constant = 40;
+        }
+        [self.view layoutIfNeeded];
+    }];
+}
+
+-(void)inviteBtnClicked:(id)sender {
+    GZLogFunc0();
+    
+    UserInvitationView* userView = [[UserInvitationView alloc] initWithFrame:CGRectMake(self.view.center.x, self.view.center.y, 0, 0)];
+    userView.translatesAutoresizingMaskIntoConstraints = NO;
+    userView.backgroundColor = [UIColor colorWithHue:1 saturation:0 brightness:0 alpha:0.5];
+    
+    self.userInvitationViewShowed = YES;
+    [self.view addSubview:userView];
+    
+    __weak UIView* view = userView;
+    [userView setActionBlock:^(NSDictionary *dic) {
+        GZLogFunc1(dic);
+
+    } closeBlock:^{
+        GZLogFunc0();
+        self.userInvitationViewShowed = NO;
+        [view removeFromSuperview];
+    }];
+    
+    {
+        NSDictionary *views = @{@"userView": userView};
+        [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[userView]-0-|" options:0 metrics:nil views:views]];
+        [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[userView]-0-|" options:0 metrics:nil views:views]];
+    }
+    
+    [UIView animateWithDuration:0.25 animations:^{
+        [self.view layoutIfNeeded];
+    }];
+}
+
+-(void)exitBtnClicked:(id)sender {
+    GZLogFunc0();
+    
+    GZLogFunc1(self.userCollectionView);
+    
+}
+
+#pragma mark - UICollectionViewDataSource
+#pragma mark - UICollectionViewDelegate
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
+{
+    GZLogFunc1(collectionView);
+    
+    return 15;
+}
+
+// The cell that is returned must be retrieved from a call to -dequeueReusableCellWithReuseIdentifier:forIndexPath:
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    GZLogFunc0();
+    
+    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"cellIdentifier" forIndexPath:indexPath];
+    
+    cell.backgroundColor = [UIColor magentaColor];
+    return cell;
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    return CGSizeMake(60, 70);
 }
 
 @end
