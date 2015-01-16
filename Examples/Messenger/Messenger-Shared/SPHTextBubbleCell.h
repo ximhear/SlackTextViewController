@@ -15,34 +15,19 @@
     UIImageView *messageBackgroundView;
 }
 
-@property(nonatomic, strong) UILabel *timestampLabel;
 @property (nonatomic,strong) NSString *bubbletype;
 @property (nonatomic,strong) UIImageView *AvatarImageView;
 @property(nonatomic, readonly) UILabel* topDateLabel;
-@property(nonatomic, readonly) UILabel* nameLabel;
+@property(nonatomic, readonly) UIView* whisperView;
+@property(nonatomic, readonly) UIView* nameView;
 @property(nonatomic, readonly) UIView* menuView;
 
 @property(nonatomic, assign) BOOL showDateSeparator;
 @property(nonatomic, strong) NSDate* date;
 @property(nonatomic, strong) NSString* name;
+@property(nonatomic, strong) NSString* whisperUserName;
 
-@property (nonatomic, assign) id <TextCellDelegate> CustomDelegate;
-
-- (void)showMenu;
-+(CGFloat)height:(NSString*)message showDateSeparator:(BOOL)showDateSeparator bubbleType:(NSString*)bubbletype frame:(CGRect)frame name:(NSString*)name;
-
-@end
-
-
-@protocol TextCellDelegate
-@required
-
--(void)textCellDidTapped:(SPHTextBubbleCell *)tesxtCell AndGesture:(UIGestureRecognizer*)tapGR;
-
--(void)cellCopyPressed:(SPHTextBubbleCell *)tesxtCell;
--(void)cellForwardPressed:(SPHTextBubbleCell *)tesxtCell;
--(void)cellDeletePressed:(SPHTextBubbleCell *)tesxtCell;
-
++(CGFloat)height:(NSString*)message showDateSeparator:(BOOL)showDateSeparator bubbleType:(NSString*)bubbletype frame:(CGRect)frame name:(NSString*)name whisperUserName:(NSString*)whisperUserName;
 
 @end
 

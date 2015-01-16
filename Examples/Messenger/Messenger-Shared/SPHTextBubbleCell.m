@@ -14,16 +14,14 @@
 @interface SPHTextBubbleCell ()
 
 @property(nonatomic, strong) UILabel* topDateLabel;
-@property(nonatomic, strong) UILabel* nameLabel;
+@property(nonatomic, strong) UIView* whisperView;
+@property(nonatomic, strong) UIView* nameView;
 @property(nonatomic, strong) UIView* menuView;
 
 @end
 
 
 @implementation SPHTextBubbleCell
-
-@synthesize timestampLabel = _timestampLabel;
-
 
 // ***********************************================================================******************************//
 
@@ -40,16 +38,6 @@
         self.textLabel.textAlignment = NSTextAlignmentLeft;
         self.textLabel.textColor = [UIColor whiteColor];
         
-        _timestampLabel = [[UILabel alloc] init];
-        _timestampLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-        _timestampLabel.textAlignment = NSTextAlignmentCenter;
-        _timestampLabel.backgroundColor = [UIColor grayColor];
-        _timestampLabel.font = [UIFont systemFontOfSize:12.0f];
-        _timestampLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
-        _timestampLabel.frame = CGRectMake(0.0f, 12, self.bounds.size.width, 18);
-        
-//        [self.contentView addSubview:_timestampLabel];
-        
         _topDateLabel = [[UILabel alloc] initWithFrame:CGRectZero];
 //        _topDateLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
         _topDateLabel.textAlignment = NSTextAlignmentCenter;
@@ -61,16 +49,21 @@
         [[_topDateLabel layer] setMasksToBounds:YES];
         [[_topDateLabel layer] setCornerRadius:_topDateLabel.frame.size.height/2.0];
         
-        self.nameLabel = [[UILabel alloc] initWithFrame:CGRectZero];
-        self.nameLabel.textAlignment = NSTextAlignmentLeft;
-        self.nameLabel.backgroundColor = [UIColor redColor];
-        self.nameLabel.font = [UIFont systemFontOfSize:12.0f];
-        self.nameLabel.textColor = [UIColor darkGrayColor];
+        self.whisperView = [[UIView alloc] initWithFrame:CGRectZero];
+        self.whisperView.backgroundColor = [UIColor yellowColor];
+        
+        self.nameView = [[UIView alloc] initWithFrame:CGRectZero];
+        self.nameView.backgroundColor = [UIColor redColor];
+        
+//        self.nameLabel.textAlignment = NSTextAlignmentLeft;
+//        self.nameLabel.font = [UIFont systemFontOfSize:12.0f];
+//        self.nameLabel.textColor = [UIColor darkGrayColor];
         
         self.menuView = [[UIView alloc] initWithFrame:CGRectZero];
         self.menuView.backgroundColor = [UIColor redColor];
         
-        [self.contentView addSubview:self.nameLabel];
+        [self.contentView addSubview:self.whisperView];
+        [self.contentView addSubview:self.nameView];
         [self.contentView addSubview:self.menuView];
         
         messageBackgroundView = [[UIImageView alloc] initWithFrame:self.textLabel.frame];
@@ -86,64 +79,11 @@
         
         self.selectionStyle = UITableViewCellSelectionStyleNone;
     
-//        UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(tapRecognized:)];
-//        lpgr.minimumPressDuration = .4; //seconds
-//        lpgr.delegate = self;
-//        [self addGestureRecognizer:lpgr];
-        
     }
     
     return self;
 }
 
-
-// ***********************************================================================******************************//
-// **********************| DELEGATE FUNCTIONS OF  CELL |****************************************************************************//
-// ***********************************================================================******************************//
-
-
--(void)tapRecognized:(UITapGestureRecognizer *)tapGR
-{
-    [self.CustomDelegate textCellDidTapped:self AndGesture:tapGR];
-}
-
-- (BOOL)canBecomeFirstResponder {
-    return YES;
-}
-- (BOOL)canPerformAction:(SEL)action withSender:(id)sender
-{
-    if (action == @selector(copy:)|| action==@selector(forward:) || action==@selector(delete:)) {
-        return YES;
-    }
-    return NO;
-}
-- (IBAction)copy:(id)sender
-{
-    [self.CustomDelegate cellCopyPressed:self];
-}
-
-- (IBAction)forward:(id)sender
-{
-    [self.CustomDelegate cellForwardPressed:self];
-}
-
-- (IBAction)delete:(id)sender
-{
-    [self.CustomDelegate cellDeletePressed:self];
-}
-
-- (void)showMenu
-{
-    [[UIMenuController sharedMenuController] setMenuVisible:NO animated:YES];
-    [self becomeFirstResponder];
-    UIMenuItem *menuItem = [[UIMenuItem alloc] initWithTitle:@"Forward" action:@selector(forward:)];
-    [[UIMenuController sharedMenuController] setMenuItems:[NSArray arrayWithObjects:menuItem,nil]];
-    [[UIMenuController sharedMenuController] update];
-    CGRect textFrame=self.textLabel.frame; textFrame.origin.x-=50;
-    [[UIMenuController sharedMenuController] setTargetRect:textFrame inView:self];
-    [[UIMenuController sharedMenuController] setMenuVisible:YES animated:YES];
-    
-}
 
 // ***********************************================================================******************************//
 // **********************| LAYOUT CELL |****************************************************************************//
@@ -175,14 +115,23 @@
                                                             options:NSStringDrawingUsesLineFragmentOrigin
                                                          attributes:@{ NSFontAttributeName:[UIFont systemFontOfSize:14.0f] }
                                                             context:nil].size;
-        self.name = @"hello";
-        if (self.name) {
-            self.nameLabel.frame = CGRectMake(68, y+4, self.bounds.size.width -68-10, 18);
-            self.nameLabel.text = self.name;
+        self.whisperUserName = @"whisper";
+        if (self.whisperUserName) {
+            self.whisperView.frame = CGRectMake(68, y+4, self.bounds.size.width -68-10, 18);
             y += 4 + 18;
         }
         else {
-            self.nameLabel.frame = CGRectZero;
+            self.whisperView.frame = CGRectZero;
+        }
+        
+        self.name = @"hello";
+        if (self.name) {
+            self.nameView.frame = CGRectMake(68, y+4, self.bounds.size.width -68-10, 18);
+//            self.nameLabel.text = self.name;
+            y += 4 + 18;
+        }
+        else {
+            self.nameView.frame = CGRectZero;
         }
         
         CGRect textLabelFrame = self.textLabel.frame;
@@ -206,15 +155,24 @@
                                                          attributes:@{ NSFontAttributeName:[UIFont systemFontOfSize:14.0f] }
                                                             context:nil].size;
         
-        self.name = @"hello";
-        if (self.name) {
-            self.nameLabel.frame = CGRectMake(0, y+4, self.bounds.size.width -10, 18);
-            self.nameLabel.text = self.name;
-            self.nameLabel.textAlignment = NSTextAlignmentRight;
+        self.whisperUserName = @"whisper";
+        if (self.whisperUserName) {
+            self.whisperView.frame = CGRectMake(0, y+4, self.bounds.size.width -10, 18);
             y += 4 + 18;
         }
         else {
-            self.nameLabel.frame = CGRectZero;
+            self.whisperView.frame = CGRectZero;
+        }
+        
+        self.name = @"hello";
+        if (self.name) {
+            self.nameView.frame = CGRectMake(0, y+4, self.bounds.size.width -10, 18);
+//            self.nameLabel.text = self.name;
+//            self.nameLabel.textAlignment = NSTextAlignmentRight;
+            y += 4 + 18;
+        }
+        else {
+            self.nameView.frame = CGRectZero;
         }
         
         CGRect textLabelFrame = self.textLabel.frame;
@@ -254,7 +212,7 @@
 
 // ***********************************================================================******************************//
 
-+(CGFloat)height:(NSString*)message showDateSeparator:(BOOL)showDateSeparator bubbleType:(NSString*)bubbletype frame:(CGRect)frame name:(NSString*)name  {
++(CGFloat)height:(NSString*)message showDateSeparator:(BOOL)showDateSeparator bubbleType:(NSString*)bubbletype frame:(CGRect)frame name:(NSString*)name  whisperUserName:(NSString*)whisperUserName {
     
     CGFloat y;
 //    showDateSeparator = NO;
@@ -281,6 +239,10 @@
                                              attributes:attributes
                                                 context:nil].size;
         
+        if (whisperUserName) {
+            y += 4 + 18;
+        }
+        
         if (name) {
             y += 4 + 18;
         }
@@ -297,6 +259,10 @@
                                                 options:NSStringDrawingUsesLineFragmentOrigin
                                              attributes:attributes
                                                 context:nil].size;
+        
+        if (whisperUserName) {
+            y += 4 + 18;
+        }
         
         if (name) {
             y += 4 + 18;

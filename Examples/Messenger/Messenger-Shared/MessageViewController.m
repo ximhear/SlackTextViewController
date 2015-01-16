@@ -433,7 +433,6 @@
     }
     cell.textLabel.text = message;
     cell.textLabel.tag=indexPath.row;
-    cell.timestampLabel.text = @"02:20 AM";
     
     // Cells must inherit the table view's transform
     // This is very important, since the main table view may be inverted
@@ -449,14 +448,16 @@
                        showDateSeparator:YES
                               bubbleType:@"LEFT"
                                    frame:self.tableView.frame
-                                    name:@"left name"];
+                                    name:@"left name"
+                         whisperUserName:@"ggg"];
     }
     else {
         return [SPHTextBubbleCell height:self.messages[indexPath.row]
                        showDateSeparator:NO
                               bubbleType:@"RIGHT"
                                    frame:self.tableView.frame
-                                    name:@"right name"];
+                                    name:@"right name"
+                         whisperUserName:@"ggg"];
     }}
 
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
